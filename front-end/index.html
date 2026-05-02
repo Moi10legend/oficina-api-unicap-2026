@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnicapFlix</title>
+    <style>
+        /* Estilo base tipo Netflix */
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0));
+        }
+
+        h1 {
+            color: #E50914; /* Vermelho clássico */
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            padding: 20px 40px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #e5e5e5;
+        }
+
+        /* Grid dos filmes */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card do filme */
+        .movie-card {
+            background-color: #222;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-bottom: 2px solid #333;
+        }
+
+        .movie-info {
+            padding: 15px;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            margin: 0 0 5px 0;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-year {
+            color: #a3a3a3;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .loading {
+            color: #fff;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>UNICAPFLIX</h1>
+    </header>
+
+    <div class="container">
+        <h2>Adicionados Recentemente</h2>
+        
+        <div id="movie-grid" class="movie-grid">
+            <p class="loading">Carregando filmes do Back-end...</p>
+        </div>
+    </div>
+
+    <script>
+        // URL da sua API Express (ajuste a porta se necessário)
+        const API_URL = 'http://localhost:3000/movies';
+
+        async function carregarFilmes() {
+            try {
+                // Fazendo a requisição (GET) para o seu Back-end
+                const response = await fetch(API_URL);
+                const filmes = await response.json();
+
+                const grid = document.getElementById('movie-grid');
+                grid.innerHTML = ''; // Limpa a mensagem de "Carregando..."
+
+                // Se não tiver filmes no banco ainda
+                if(filmes.length === 0) {
+                    grid.innerHTML = '<p>Nenhum filme cadastrado na API ainda. Manda um POST no Insomnia!</p>';
+                    return;
+                }
+
+                // Laço de repetição para criar um card para cada filme
+                filmes.forEach(filme => {
+                    const card = document.createElement('div');
+                    card.className = 'movie-card';
+                    
+                    // Ajuste os nomes das variáveis (name, cover_url, year) 
+                    // para bater exatamente com o que você colocou no seu schema.prisma!
+                    card.innerHTML = `
+                        <img src="${filme.cover}" alt="Capa do filme ${filme.title}" onerror="this.src='https://via.placeholder.com/200x300?text=Sem+Capa'">
+                        <div class="movie-info">
+                            <h3 class="movie-title">${filme.title}</h3>
+                            <p class="movie-year">${filme.year}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Erro ao buscar filmes:", error);
+                document.getElementById('movie-grid').innerHTML = '<p style="color: #E50914;">Erro ao conectar com a API. O servidor Express está rodando?</p>';
+            }
+        }
+
+        // Executa a função assim que a página abrir
+        carregarFilmes();
+    </script>
+</body>
+</html>
