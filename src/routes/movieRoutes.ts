@@ -6,5 +6,6 @@ const moviesController = new MoviesController();
 
 router.get('/movies', moviesController.list);
 router.post('/movie', moviesController.create);
+router.delete('/movie/:id', moviesController.delete)
 
 export default router;

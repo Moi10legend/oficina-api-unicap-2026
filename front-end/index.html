@@ -84,6 +84,21 @@
             margin: 0;
         }
 
+        .delete-btn {
+            background-color: #E50914;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background-color: #b20710;
+        }
+
         .loading {
             color: #fff;
             font-size: 1.2rem;
@@ -106,12 +121,37 @@
 
     <script>
         // URL da sua API Express (ajuste a porta se necessário)
-        const API_URL = 'http://localhost:3000/movies';
+        const API_URL = 'http://localhost:3000/';
+
+        async function deletarFilme(id) {
+            // Um pequeno alerta para evitar que a pessoa apague sem querer
+            const confirmacao = confirm("Tem certeza que deseja deletar este filme?");
+            if (!confirmacao) return;
+
+            try {
+                // Faz a requisição mandando o método DELETE e passando o ID na URL
+                const response = await fetch(`${API_URL}movie/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    // Se a API retornou sucesso (status 200), recarregamos a lista!
+                    console.log(`Filme ${id} deletado com sucesso.`);
+                    carregarFilmes(); 
+                } else {
+                    alert("Erro ao deletar o filme. Verifique o console.");
+                }
+
+            } catch (error) {
+                console.error("Erro de conexão ao tentar deletar:", error);
+                alert("Erro de comunicação com o servidor.");
+            }
+            }
 
         async function carregarFilmes() {
             try {
                 // Fazendo a requisição (GET) para o seu Back-end
-                const response = await fetch(API_URL);
+                const response = await fetch(`${API_URL}movies`);
                 const filmes = await response.json();
 
                 const grid = document.getElementById('movie-grid');
@@ -136,6 +176,7 @@
                             <h3 class="movie-title">${filme.title}</h3>
                             <p class="movie-year">${filme.year}</p>
                         </div>
+                        <button class="delete-btn" onclick="deletarFilme(${filme.id})"> Deletar</button>
                     `;
                     grid.appendChild(card);
                 });
