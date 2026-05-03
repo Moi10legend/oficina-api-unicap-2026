@@ -171,7 +171,7 @@
                     // Ajuste os nomes das variáveis (name, cover_url, year) 
                     // para bater exatamente com o que você colocou no seu schema.prisma!
                     card.innerHTML = `
-                        <img src="${filme.cover}" alt="Capa do filme ${filme.title}" onerror="this.src='https://via.placeholder.com/200x300?text=Sem+Capa'">
+                        <img src="${filme.cover_url}" alt="Capa do filme ${filme.title}" onerror="this.src='https://via.placeholder.com/200x300?text=Sem+Capa'">
                         <div class="movie-info">
                             <h3 class="movie-title">${filme.title}</h3>
                             <p class="movie-year">${filme.year}</p>
