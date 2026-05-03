@@ -22,6 +22,11 @@ export class MovieServices{
     }
 
     async deleteMovie(id: number){
+        // movies.forEach((movie) => {
+        //     if(movie.id == id){
+        //         movies.splice(movies.indexOf(movie), 1)
+        //     }
+        // })
         return await prisma.movie.delete({
             where: {
                 id: id,
