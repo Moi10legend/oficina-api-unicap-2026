@@ -1,16 +1,30 @@
-\# Para criar o projeto node.js aceitando de forma rápida, sem precisar configurar passo a passo.
+\# Para criar o projeto node.js aceitando de forma rápida, sem precisar configurar passo a passo.  
 
-**npm init -y**
+**npm init -y**  
 
-\#Para instalar o express
+\#Para instalar o express  
 
-**npm install express**
+**npm install express**  
 
-\#Para instalar o TypeScript e suas tipagens
+\#Para instalar o TypeScript e suas tipagens  
 
-**npm install -D typescript @types/express @types/node tsx**
+**npm install -D typescript @types/express @types/node tsx**  
 
-1º Criação do tsconfig (Configuração no arquivo tsconfig.txt)
+1º Criação do tsconfig (Configuração no arquivo tsconfig.txt)  
+```Typescript
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "",
+    "esModuleInterop": true,
+    "strict": true,
+    "ignoreDeprecations": "6.0",
+  },
+  "include": ["src/**/*"],
+}
+```
 
 src/
 
@@ -32,79 +46,112 @@ src/
 
 3º - Criação do server.ts
 
-\#Importação do express
-
+```Typescript
 import express from 'express';
-
-
-
-\#Criação do servidor
 
 const app = express();
 
-\#Possibilita ler as requisições em formato JSON
-
 app.use(express.json());
 
-
-
-\#Define a porta que estará rodando o servidor
+app.get('/', (req, res) => {
+    message: `🚀 Servidor rodando em http://localhost:${PORT}`
+});
 
 const PORT = 3000;
 
 app.listen(PORT, () => {
 
 &#x20;   console.log(`🚀 Servidor Express rodando na porta ${PORT}`);
-
 }); 
+```
+4º - Criação do Service com um array representando o banco de dados.  
+```typescript
+let movies = [{id:1, title:"O Auto da Compadecida", year:2000, cover_url:"hhttps://upload.wikimedia.org/wikipedia/pt/thumb/b/bf/O_auto_da_compadecida.jpg/250px-O_auto_da_compadecida.jpg"}]
+```
 
+5º - Criação do Controller  
 
+6º - Crição do Routes  
 
-4º - Criação do Service com um array representando o banco de dados.
-5º - Criação do Controller
-6º - Crição do Routes
-7º - Teste das rotas no Insomnia
+7º - Importação do router no server.ts e Teste das rotas no Insomnia  
+```typescript
+import router from './routes/movieRoutes.js';
 
-8º - Instalação do Prisma
+app.use(router);
+```
+
+8º - Instalação do Prisma  
+```bash
 npm install -D prisma @types/better-sqlite3
 npm install @prisma/client @prisma/adapter-better-sqlite3 dotenv
 \#Criação da pasta prisma, prisma.config.ts e .env
 npx prisma init --datasource-provider sqlite
+```
 
-9º importação do env em "import { defineConfig, env } from "prisma/config";" no arquivo config do prisma
+9º importação do env em "import { defineConfig, env } from "prisma/config";" no arquivo config do prisma e criação da tabela movie
 
-10º modelagem da tabela de filmes
-\# Para criação do banco e tabela de filmes
+```prisma
+model Movie{
+  id Int @id @default(autoincrement())
+  title String
+  year Int
+  cover String
+}
+```
+
+10º modelagem da tabela de filmes  
+\# Para criação do banco e tabela de filmes  
 npx prisma migrate dev --name init
 
-11º Geração do Prisma Client
+11º Geração do Prisma Client  
 npx prisma generate
 
-12º Refatoração do Service para persistir os dados no banco.
-import { PrismaClient } from '@prisma/client';
+12º Refatoração do Service para persistir os dados no banco.  
+Arquivo prismaClient.ts:  
+```Typescript
+import "dotenv/config";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "../generated/client";
 
-const prisma = new PrismaClient();
+const connectionString = `${process.env.DATABASE_URL}`;
 
-export const movieService = {
-  getAllMovies: async () => {
-    // Sai o array, entra o Prisma
-    return await prisma.movie.findMany();
-  },
-  createMovie: async (title: string, year: number) => {
-    // Sai o push no array, entra o Prisma
-    return await prisma.movie.create({
-      data: { title, year }
-    });
-  }
-};
+const adapter = new PrismaBetterSqlite3({ url: connectionString });
+const prisma = new PrismaClient({ adapter });
 
-13º Criar os filmes "O Agente Secreto" e "O Auto da Compadecida" no Insomnia
-Capa do Agente Secreto: https://upload.wikimedia.org/wikipedia/pt/6/60/O_Agente_Secreto_%28Cartaz_brasileiro%29.jpg
-Capa do Auto da Compadecida: https://upload.wikimedia.org/wikipedia/pt/thumb/b/bf/O_auto_da_compadecida.jpg/250px-O_auto_da_compadecida.jpg
+export { prisma };
+```
+
+Arquivo movieService.ts:
+```Typescript
+import { prisma } from "../database/prismaClient"
+
+```
+
+13º Criar os filmes "O Agente Secreto" e "O Auto da Compadecida" no Insomnia  
+Filme O Agente Secreto: 
+```json
+{
+    "title": "O Agente Secreto",
+    "year": 2025,
+    "cover_url": "https://upload.wikimedia.org/wikipedia/pt/6/60/O_Agente_Secreto_%28Cartaz_brasileiro%29.jpg"
+}
+```
+Filme O Auto da Compadecida:
+```json
+{
+    "title": "O Auto da Compadecida",
+    "year": 2000,
+    "cover_url": "hhttps://upload.wikimedia.org/wikipedia/pt/thumb/b/bf/O_auto_da_compadecida.jpg/250px-O_auto_da_compadecida.jpg"
+}
+```
 
 14º Subir o front-end e mostrar o filmes aparecendo. Adicionar Bacurau:
-ano: 2019
-capa: https://upload.wikimedia.org/wikipedia/pt/6/67/Bacurau_%28filme%29.jpeg
-
+```json
+{
+    "title": "Bacurau",
+    "year": 2019,
+    "cover_url": "https://upload.wikimedia.org/wikipedia/pt/6/67/Bacurau_%28filme%29.jpeg"
+}
+```
 \# Para refazer o banco de dados a partir de migrações já existentes:
 npx prisma migrate dev
