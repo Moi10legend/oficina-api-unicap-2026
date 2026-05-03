@@ -4,7 +4,7 @@
 2º Instalação do fast-api  
 **poetry add "fastapi[standard]"**
 
-3º Ativação do ambiente virtual no terminal  
+3º Ativação do ambiente virtual no terminal e no compilador (ctrl + shift + p)
 **poetry env activate**  
 (colar comando para ativar)
 
