@@ -20,4 +20,12 @@ export class MovieServices{
             data: {title, year, cover}
         });
     }
+
+    async deleteMovie(id: number){
+        return await prisma.movie.delete({
+            where: {
+                id: id,
+            }
+        })
+    }
 };

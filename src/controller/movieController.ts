@@ -14,4 +14,10 @@ export class MoviesController{
         const newMovie = await movieServices.createMovie(title, year, cover);
         res.status(201).json(newMovie);
     }
+
+    async delete(req: Request, res: Response){
+        const id = Number(req.params.id);
+        movieServices.deleteMovie(id);
+        res.status(200).json({ message: 'Filme deletado com sucesso!' });
+    }
 }

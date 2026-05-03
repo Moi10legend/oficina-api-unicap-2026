@@ -68,7 +68,7 @@ app.listen(PORT, () => {
 8º - Instalação do Prisma
 npm install -D prisma @types/better-sqlite3
 npm install @prisma/client @prisma/adapter-better-sqlite3 dotenv
-\#Criação da pasta prisma, prisma.sonfig.ts e .env
+\#Criação da pasta prisma, prisma.config.ts e .env
 npx prisma init --datasource-provider sqlite
 
 9º importação do env em "import { defineConfig, env } from "prisma/config";" no arquivo config do prisma
@@ -99,5 +99,12 @@ export const movieService = {
 };
 
 13º Criar os filmes "O Agente Secreto" e "O Auto da Compadecida" no Insomnia
-Capa do Agente Secreto: https://www.amazon.com.br/agente-secreto-Kleber-Mendon%C3%A7a/dp/6585854365
+Capa do Agente Secreto: https://upload.wikimedia.org/wikipedia/pt/6/60/O_Agente_Secreto_%28Cartaz_brasileiro%29.jpg
 Capa do Auto da Compadecida: https://upload.wikimedia.org/wikipedia/pt/thumb/b/bf/O_auto_da_compadecida.jpg/250px-O_auto_da_compadecida.jpg
+
+14º Subir o front-end e mostrar o filmes aparecendo. Adicionar Bacurau:
+ano: 2019
+capa: https://upload.wikimedia.org/wikipedia/pt/6/67/Bacurau_%28filme%29.jpeg
+
+\# Para refazer o banco de dados a partir de migrações já existentes:
+npx prisma migrate dev
