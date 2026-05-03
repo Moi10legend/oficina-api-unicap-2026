@@ -67,11 +67,81 @@ app.listen(PORT, () => {
 4º - Criação do Service com um array representando o banco de dados.  
 ```typescript
 let movies = [{id:1, title:"O Auto da Compadecida", year:2000, cover_url:"hhttps://upload.wikimedia.org/wikipedia/pt/thumb/b/bf/O_auto_da_compadecida.jpg/250px-O_auto_da_compadecida.jpg"}]
+
+export class MovieServices{
+    async getAllMovies(){
+        return movies;
+    }
+    async createMovie(title:string, year:number, cover:string){
+        // const newMovie = {id: movies.length + 1, title: title, year: year, cover: cover};
+        // movies.push(newMovie);
+        return await prisma.movie.create({
+            data: {title, year, cover}
+        });
+    }
+    async deleteMovie(id: number){
+        movies.forEach((movie) => {
+            if(movie.id == id){
+                movies.splice(movies.indexOf(movie), 1)
+            }
+        })
+    }
+}
 ```
 
 5º - Criação do Controller  
+```typescript
+import type {Request, Response} from 'express';
+import { MovieServices } from '../services/movieServices.js';
+
+const movieServices = new MovieServices();
+
+export class MoviesController{
+    async list(req: Request, res: Response){
+        const movies = await movieServices.getAllMovies();
+        res.json(movies);
+    }
+
+    async create(req: Request, res: Response){
+        const {title, year, cover} = req.body;
+        const newMovie = await movieServices.createMovie(title, year, cover);
+        res.status(201).json(newMovie);
+    }
+
+    async delete(req: Request, res: Response){
+        const id = Number(req.params.id);
+        movieServices.deleteMovie(id);
+        res.status(200).json({ message: 'Filme deletado com sucesso!' });
+    }
+}
+```
 
 6º - Crição do Routes  
+```typescript
+import type {Request, Response} from 'express';
+import { MovieServices } from '../services/movieServices.js';
+
+const movieServices = new MovieServices();
+
+export class MoviesController{
+    async list(req: Request, res: Response){
+        const movies = await movieServices.getAllMovies();
+        res.json(movies);
+    }
+
+    async create(req: Request, res: Response){
+        const {title, year, cover} = req.body;
+        const newMovie = await movieServices.createMovie(title, year, cover);
+        res.status(201).json(newMovie);
+    }
+
+    async delete(req: Request, res: Response){
+        const id = Number(req.params.id);
+        movieServices.deleteMovie(id);
+        res.status(200).json({ message: 'Filme deletado com sucesso!' });
+    }
+}
+```
 
 7º - Importação do router no server.ts e Teste das rotas no Insomnia  
 ```typescript
@@ -124,7 +194,25 @@ export { prisma };
 Arquivo movieService.ts:
 ```Typescript
 import { prisma } from "../database/prismaClient"
+export class MovieServices{
+    async getAllMovies(){
+        return await prisma.movie.findMany();
+    }
 
+    async createMovie(title:string, year:number, cover:string){
+        return await prisma.movie.create({
+            data: {title, year, cover}
+        });
+    }
+
+    async deleteMovie(id: number){
+        return await prisma.movie.delete({
+            where: {
+                id: id,
+            }
+        })
+    }
+};
 ```
 
 13º Criar os filmes "O Agente Secreto" e "O Auto da Compadecida" no Insomnia  
