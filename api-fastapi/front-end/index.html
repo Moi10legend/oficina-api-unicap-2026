@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário de Hardware - UNICAP</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #2c3e50; }
+        .form-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #27ae60; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; width: 100%; font-size: 16px; }
+        button:hover { background-color: #219150; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-delete { background-color: #e74c3c; margin-top: 10px; }
+        .btn-delete:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💻 Inventário de Hardware</h1>
+
+    <div class="form-container">
+        <h3>Adicionar Novo Equipamento</h3>
+        <form id="form-equipamento">
+            <input type="text" id="nome" placeholder="Nome do Equipamento (ex: Notebook Dell)" required>
+            <input type="text" id="marca" placeholder="Marca (ex: Dell)" required>
+            <input type="text" id="patrimonio" placeholder="Número de Patrimônio (ex: 12345)" required>
+            <button type="submit">Cadastrar Equipamento</button>
+        </form>
+    </div>
+
+    <h3>Equipamentos Cadastrados</h3>
+    <div class="grid" id="lista-equipamentos">
+        </div>
+</div>
+
+<script>
+    // URL da nossa API FastAPI
+    const API_URL = "http://127.0.0.1:8000/equipamentos";
+
+    // Função para buscar e renderizar os equipamentos (GET)
+    async function carregarEquipamentos() {
+        try {
+            const resposta = await fetch(API_URL);
+            const equipamentos = await resposta.json();
+            const grid = document.getElementById('lista-equipamentos');
+            
+            grid.innerHTML = ''; // Limpa a lista antes de renderizar
+
+            equipamentos.forEach(eqp => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <strong>${eqp.nome}</strong><br>
+                    <small>Marca: ${eqp.marca}</small><br>
+                    <small>Patrimônio: ${eqp.patrimonio}</small><br> 
+                    <button class="btn-delete" onclick="deletarEquipamento(${eqp.id})">Deletar</button>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (erro) {
+            console.error("Erro ao buscar equipamentos:", erro);
+        }
+    }
+
+    // Função para cadastrar novo equipamento (POST)
+    document.getElementById('form-equipamento').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Evita recarregar a página
+        
+        const nome = document.getElementById('nome').value;
+        const marca = document.getElementById('marca').value;
+        const patrimonio = document.getElementById('patrimonio').value;
+
+        const novoEquipamento = { nome: nome, marca: marca, patrimonio: patrimonio };
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novoEquipamento)
+            });
+            
+            // Limpa o form e recarrega a lista
+            document.getElementById('form-equipamento').reset();
+            carregarEquipamentos();
+        } catch (erro) {
+            console.error("Erro ao cadastrar:", erro);
+        }
+    });
+
+    // Função para deletar um equipamento (DELETE)
+    async function deletarEquipamento(id) {
+        if(confirm("Tem certeza que deseja deletar este equipamento?")) {
+            try {
+                await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                carregarEquipamentos(); // Atualiza a tela
+            } catch (erro) {
+                console.error("Erro ao deletar:", erro);
+            }
+        }
+    }
+
+    // Carrega a lista assim que a página abrir
+    carregarEquipamentos();
+</script>
+
+</body>
+</html>
